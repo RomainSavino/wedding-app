@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Notre Mariage 💕</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --cream:#F9F5EE;--warm:#F2EAD8;--gold:#B8965A;--gold-light:#D4AF76;
+  --rose:#C87680;--rose-dark:#9E4E5A;--text:#3A2E28;--muted:#7A6A60;--white:#FFF;
+}
+html,body{min-height:100%;background:var(--cream);color:var(--text);font-family:'DM Sans',sans-serif;}
+body::before{content:'';position:fixed;top:-60px;right:-60px;width:260px;height:260px;
+  background:radial-gradient(circle,rgba(184,150,90,.13) 0%,transparent 70%);pointer-events:none;z-index:0;}
+body::after{content:'';position:fixed;bottom:-60px;left:-60px;width:300px;height:300px;
+  background:radial-gradient(circle,rgba(200,118,128,.1) 0%,transparent 70%);pointer-events:none;z-index:0;}
+
+.screen{min-height:100svh;display:flex;flex-direction:column;align-items:center;padding:40px 24px 40px;position:relative;z-index:1;}
+.screen.hidden{display:none!important;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+.screen{animation:fadeUp .4s ease;}
+
+.logo{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;color:var(--gold);text-align:center;line-height:1;margin-top:32px;}
+.logo-sub{font-size:12px;letter-spacing:.3em;color:var(--muted);font-weight:300;margin-top:10px;text-transform:uppercase;}
+.divider{width:50px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:22px auto;}
+.table-badge{display:inline-flex;align-items:center;gap:8px;padding:7px 16px;background:rgba(184,150,90,.1);
+  border:1px solid rgba(184,150,90,.3);border-radius:20px;font-size:13px;color:var(--gold);font-weight:500;margin-bottom:28px;}
+.field-label{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;font-weight:500;}
+.input{width:100%;padding:16px 20px;border:1.5px solid rgba(184,150,90,.3);border-radius:12px;
+  background:var(--white);font-size:20px;font-family:'Cormorant Garamond',serif;color:var(--text);
+  outline:none;transition:border-color .2s;text-align:center;}
+.input:focus{border-color:var(--gold);}
+.input::placeholder{color:#C5B5A5;}
+.btn{width:100%;padding:17px;border:none;border-radius:12px;font-size:15px;font-weight:500;
+  font-family:'DM Sans',sans-serif;letter-spacing:.04em;cursor:pointer;transition:all .18s;}
+.btn-primary{background:linear-gradient(135deg,var(--rose),var(--rose-dark));color:var(--white);
+  box-shadow:0 4px 20px rgba(158,78,90,.28);}
+.btn-primary:active{transform:scale(.98);}
+.note{margin-top:22px;font-size:12px;color:var(--muted);text-align:center;line-height:1.6;}
+
+.main-header{width:100%;display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+.guest-name{font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--text);}
+.btn-change{font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer;text-decoration:underline;padding:4px;}
+.theme-card{width:100%;background:var(--white);border-radius:20px;padding:26px 22px;
+  box-shadow:0 2px 24px rgba(58,46,40,.07);border:1px solid rgba(184,150,90,.15);margin-bottom:22px;}
+.theme-emoji{font-size:40px;text-align:center;display:block;margin-bottom:10px;}
+.theme-name{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:600;text-align:center;margin-bottom:8px;}
+.theme-desc{font-size:14px;text-align:center;color:var(--muted);line-height:1.6;}
+.upload-zone{width:100%;padding:26px 22px;border:2px dashed rgba(200,118,128,.4);border-radius:16px;
+  background:rgba(200,118,128,.04);display:flex;flex-direction:column;align-items:center;gap:8px;
+  cursor:pointer;transition:background .2s;color:var(--rose);margin-bottom:22px;-webkit-tap-highlight-color:transparent;}
+.upload-zone:active{background:rgba(200,118,128,.11);}
+.upload-icon{font-size:30px;}
+.upload-label{font-size:16px;font-weight:500;}
+.upload-hint{font-size:12px;color:var(--muted);}
+.sec-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;}
+.sec-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;}
+.count-badge{background:rgba(200,118,128,.14);color:var(--rose);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:500;}
+.sec-hint{font-size:12px;color:var(--muted);margin-bottom:14px;}
+
+.gallery{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin-bottom:80px;}
+.photo-card{border-radius:12px;overflow:hidden;position:relative;aspect-ratio:1;background:var(--warm);cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.photo-card img{width:100%;height:100%;object-fit:cover;display:block;}
+.selected-ring{display:none;position:absolute;inset:0;border:3px solid var(--rose);border-radius:12px;pointer-events:none;z-index:3;}
+.photo-card.selected .selected-ring{display:block;}
+.selected-check{display:none;position:absolute;top:7px;right:7px;width:26px;height:26px;
+  background:var(--rose);border-radius:50%;color:#fff;font-size:14px;font-weight:700;
+  align-items:center;justify-content:center;z-index:4;}
+.photo-card.selected .selected-check{display:flex;}
+
+.action-bar{position:absolute;bottom:0;left:0;right:0;padding:8px;
+  background:linear-gradient(to top,rgba(0,0,0,.75) 0%,transparent 100%);
+  display:flex;justify-content:space-between;align-items:flex-end;z-index:2;
+  opacity:1;}
+.pa-btn{padding:9px 12px;border-radius:8px;border:none;font-size:12px;cursor:pointer;font-weight:600;line-height:1;min-height:36px;}
+.pa-select{background:var(--rose);color:#fff;}
+.pa-select.active{background:#fff;color:var(--rose);}
+.pa-delete{background:rgba(255,255,255,.2);backdrop-filter:blur(4px);color:#fff;font-size:13px;}
+
+.up-overlay{position:fixed;inset:0;background:rgba(58,46,40,.72);display:flex;flex-direction:column;
+  align-items:center;justify-content:center;z-index:100;gap:16px;color:#fff;font-size:15px;}
+.up-overlay.hidden{display:none;}
+.spinner{width:38px;height:38px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;
+  border-radius:50%;animation:spin .75s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:var(--text);
+  color:#fff;padding:11px 20px;border-radius:30px;font-size:14px;
+  opacity:0;transition:opacity .3s;z-index:200;white-space:nowrap;pointer-events:none;}
+.toast.show{opacity:1;}
+.toast.error{background:#c0392b;}
+
+.empty-state{grid-column:1/-1;text-align:center;padding:32px 0;color:var(--muted);font-size:14px;}
+</style>
+</head>
+<body>
+
+<div id="screen-register" class="screen hidden">
+  <div style="text-align:center;width:100%">
+    <div class="logo">♡</div>
+    <div class="logo-sub">Soirée Photo</div>
+    <div class="divider"></div>
+  </div>
+  <div class="table-badge">🌿 <span id="table-label">Table …</span></div>
+  <div style="width:100%;margin-bottom:12px">
+    <div class="field-label">Votre prénom</div>
+    <input id="input-name" class="input" type="text" placeholder="ex : Marie" autocomplete="given-name" />
+  </div>
+  <div style="width:100%;margin-top:8px">
+    <button class="btn btn-primary" onclick="register()">Rejoindre la fête →</button>
+  </div>
+  <p class="note">Votre session sera mémorisée sur cet appareil<br>pour ne pas avoir à re-saisir votre prénom.</p>
+</div>
+
+<div id="screen-main" class="screen hidden">
+  <div class="main-header">
+    <div class="guest-name" id="display-name">Bonjour !</div>
+    <button class="btn-change" onclick="logout()">Changer</button>
+  </div>
+  <div class="theme-card">
+    <span class="theme-emoji" id="theme-emoji">📸</span>
+    <div class="theme-name" id="theme-name">Chargement…</div>
+    <div class="theme-desc" id="theme-desc"></div>
+  </div>
+  <div class="upload-zone" onclick="document.getElementById('file-input').click()">
+    <span class="upload-icon">📷</span>
+    <span class="upload-label">Ajouter une photo</span>
+    <span class="upload-hint">Galerie ou appareil photo</span>
+  </div>
+  <input id="file-input" type="file" accept="image/*" style="display:none" onchange="uploadPhoto(this)" />
+  <div style="width:100%">
+    <div class="sec-header">
+      <div class="sec-title">Mes photos</div>
+      <span class="count-badge" id="photo-count">0</span>
+    </div>
+    <div class="sec-hint">Appuyez sur une photo pour marquer votre préférée ⭐</div>
+    <div class="gallery" id="gallery"><div class="empty-state">Pas encore de photo — lancez-vous !</div></div>
+  </div>
+</div>
+
+<div id="up-overlay" class="up-overlay hidden">
+  <div class="spinner"></div>
+  <div>Envoi en cours…</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const API = '';
+let guest = null;
+let myPhotos = [];
+
+function getTable() { return new URLSearchParams(location.search).get('table'); }
+function getCookie(n) {
+  return document.cookie.split('; ').reduce((a, c) => {
+    const [k, v] = c.split('=');
+    return k === n ? decodeURIComponent(v) : a;
+  }, null);
+}
+function showToast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.toggle('error', !!isError);
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ==========
+// Init
+// ==========
+
+async function init() {
+  const table = getTable();
+  document.getElementById('table-label').textContent = table ? `Table ${table}` : 'Table inconnue';
+  const gid = getCookie('guest_id');
+  if (gid) {
+    try {
+      const r = await fetch(`${API}/api/guests/${gid}`);
+      if (r.ok) {
+        guest = await r.json();
+        showMain();
+        return;
+      }
+    } catch (e) {}
+  }
+  document.getElementById('screen-register').classList.remove('hidden');
+}
+
+// ==========
+// Register
+// ==========
+
+async function register() {
+  const name = document.getElementById('input-name').value.trim();
+  const table = getTable();
+  if (!name) return showToast('Entrez votre prénom !', true);
+  if (!table) return showToast('Numéro de table manquant dans l\'URL', true);
+  try {
+    const r = await fetch(`${API}/api/guests/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, table_number: parseInt(table) })
+    });
+    if (!r.ok) throw new Error(await r.text());
+    guest = await r.json();
+    document.cookie = `guest_id=${guest.id};max-age=${86400 * 7};path=/;samesite=lax`;
+    showMain();
+  } catch (e) {
+    showToast('Erreur lors de l\'inscription', true);
+    console.error(e);
+  }
+}
+
+document.getElementById('input-name').addEventListener('keydown', e => { if (e.key === 'Enter') register(); });
+
+// ==========
+// Main screen
+// ==========
+
+function showMain() {
+  document.getElementById('screen-register').classList.add('hidden');
+  document.getElementById('screen-main').classList.remove('hidden');
+  document.getElementById('display-name').textContent = `Bonjour ${guest.name}\u00a0!`;
+  document.getElementById('theme-emoji').textContent = guest.theme_emoji;
+  document.getElementById('theme-name').textContent = guest.theme_name;
+  document.getElementById('theme-desc').textContent = guest.theme_description;
+  loadPhotos();
+}
+
+function logout() {
+  document.cookie = 'guest_id=;max-age=0;path=/';
+  location.reload();
+}
+
+// ==========
+// Upload
+// ==========
+
+async function uploadPhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  document.getElementById('up-overlay').classList.remove('hidden');
+  try {
+    const fd = new FormData();
+    fd.append('guest_id', String(guest.id));
+    fd.append('file', file);
+    const r = await fetch(`${API}/api/photos/upload`, { method: 'POST', body: fd });
+    if (!r.ok) throw new Error(await r.text());
+    const photo = await r.json();
+    myPhotos.unshift(photo);
+    renderGallery();
+    showToast('Photo envoyée 🎉');
+  } catch (e) {
+    showToast('Erreur lors de l\'envoi', true);
+    console.error(e);
+  } finally {
+    document.getElementById('up-overlay').classList.add('hidden');
+    input.value = '';
+  }
+}
+
+// ==========
+// Gallery
+// ==========
+
+async function loadPhotos() {
+  try {
+    const r = await fetch(`${API}/api/photos/?guest_id=${guest.id}`);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    myPhotos = await r.json();
+    renderGallery();
+  } catch (e) {
+    showToast('Impossible de charger les photos', true);
+    console.error('loadPhotos error:', e);
+  }
+}
+
+function renderGallery() {
+  document.getElementById('photo-count').textContent = myPhotos.length;
+  const g = document.getElementById('gallery');
+  if (!myPhotos.length) {
+    g.innerHTML = '<div class="empty-state">Pas encore de photo — lancez-vous !</div>';
+    return;
+  }
+  g.innerHTML = myPhotos.map(p => `
+    <div class="photo-card${p.is_selected ? ' selected' : ''}" id="pc-${p.id}">
+      <img src="${p.thumbnail_url || p.url}" loading="lazy" onerror="this.src='${p.url}'" />
+      <div class="selected-ring"></div>
+      <div class="selected-check">✓</div>
+      <div class="action-bar">
+        <button class="pa-btn pa-select${p.is_selected ? ' active' : ''}" onclick="toggleSelect(${p.id},${p.is_selected})">
+          ${p.is_selected ? '✓ Ma préférée' : '⭐ Préférée'}
+        </button>
+        <button class="pa-btn pa-delete" onclick="deletePhoto(${p.id})">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+async function toggleSelect(id, isSelected) {
+  try {
+    const r = await fetch(`${API}/api/photos/${id}/select?guest_id=${guest.id}`, { method: 'PUT' });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const updated = await r.json();
+    const photo = myPhotos.find(p => p.id === id);
+    if (photo) photo.is_selected = updated.is_selected;
+    myPhotos.forEach(p => { if (p.id !== id) p.is_selected = false; });
+    renderGallery();
+    showToast(updated.is_selected ? '⭐ Photo soumise au jury !' : 'Sélection retirée');
+  } catch (e) {
+    showToast('Erreur', true);
+    console.error(e);
+  }
+}
+
+async function deletePhoto(id) {
+  if (!confirm('Supprimer cette photo ?')) return;
+  try {
+    const r = await fetch(`${API}/api/photos/${id}?guest_id=${guest.id}`, { method: 'DELETE' });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    myPhotos = myPhotos.filter(p => p.id !== id);
+    renderGallery();
+    showToast('Photo supprimée');
+  } catch (e) {
+    showToast('Erreur lors de la suppression', true);
+    console.error(e);
+  }
+}
+
+init();
+</script>
+</body>
+</html>

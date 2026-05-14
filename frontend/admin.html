@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Mariage</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0e0e0e;--card:#181818;--border:#282828;
+  --gold:#c9a96e;--rose:#c87680;--green:#5ca882;
+  --red:#c05050;--blue:#5a90c8;--proj:#9b8ee0;
+  --text:#e8e0d5;--muted:#6a6055;--muted2:#4a4040;
+}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px}
+
+/* ── LOGIN ── */
+#login-wrap{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:999}
+#login-wrap.gone{display:none}
+.lbox{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:40px 36px;width:320px;text-align:center}
+.lbox h2{color:var(--gold);font-size:20px;margin-bottom:4px}
+.lbox small{display:block;color:var(--muted);font-size:12px;margin-bottom:22px}
+.lbox input{width:100%;padding:12px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:16px;text-align:center;outline:none;letter-spacing:.12em;margin-bottom:10px}
+.lbox input:focus{border-color:var(--gold)}
+.lbox button{width:100%;padding:12px;background:var(--gold);color:#111;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}
+.lerr{color:#e88;font-size:12px;margin-top:8px;min-height:18px}
+
+/* ── TOPBAR ── */
+.topbar{position:sticky;top:0;z-index:50;background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:stretch;height:48px}
+.brand{padding:0 16px;color:var(--gold);font-size:13px;font-weight:600;border-right:1px solid var(--border);display:flex;align-items:center}
+.nb{height:100%;padding:0 14px;color:var(--muted);font-size:13px;font-weight:500;background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:.15s}
+.nb:hover{color:var(--text)}
+.nb.on{color:var(--gold);border-bottom-color:var(--gold)}
+.wsdot{width:7px;height:7px;border-radius:50%;background:var(--muted2);margin:auto 14px auto auto}
+.wsdot.live{background:var(--green)}
+
+/* ── STATS ── */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:12px 14px;border-bottom:1px solid var(--border)}
+.sc{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:11px 8px;text-align:center}
+.sn{font-size:22px;font-weight:600;color:var(--gold)}
+.sn.p{color:var(--proj)}
+.sn.b{color:var(--blue)}
+.sl{font-size:10px;color:var(--muted);margin-top:2px;text-transform:uppercase;letter-spacing:.06em}
+
+/* ── VIEWS ── */
+.view{display:none}
+.view.on{display:block}
+
+/* ── FILTERS ── */
+.filters{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:7px}
+.frow{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.flabel{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);width:68px;flex-shrink:0;font-weight:600}
+.fb{padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:none;color:var(--muted);font-size:12px;font-weight:500;cursor:pointer;transition:.12s;user-select:none;white-space:nowrap}
+.fb:hover{color:var(--text);border-color:#484848}
+.fb.on{background:rgba(201,169,110,.14);color:var(--gold);border-color:rgba(201,169,110,.5)}
+.fb.on.ps{background:rgba(155,142,224,.14);color:var(--proj);border-color:rgba(155,142,224,.5)}
+.fb.on.ss{background:rgba(200,118,128,.14);color:var(--rose);border-color:rgba(200,118,128,.5)}
+.fb.on.fs{background:rgba(90,144,200,.14);color:var(--blue);border-color:rgba(90,144,200,.5)}
+.fright{margin-left:auto;display:flex;align-items:center;gap:8px}
+.fsearch{padding:6px 10px;background:var(--card);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:13px;outline:none;width:180px}
+.fsearch:focus{border-color:var(--gold)}
+.fcount{font-size:11px;color:var(--muted);white-space:nowrap}
+.freset{font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer;text-decoration:underline}
+.freset:hover{color:var(--text)}
+
+/* ── GRID ── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;padding:12px 14px}
+.empty{grid-column:1/-1;padding:40px;text-align:center;color:var(--muted)}
+.card{background:var(--card);border:1.5px solid var(--border);border-radius:11px;overflow:hidden;transition:border-color .15s}
+.card.cs{border-color:var(--rose)}
+.card.cp{border-color:var(--proj);box-shadow:0 0 0 1px var(--proj)}
+.card.cf{border-color:var(--blue)}
+.cimg{position:relative}
+.cimg img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
+.cbadges{position:absolute;top:6px;left:6px;display:flex;gap:3px;flex-wrap:wrap}
+.badge{font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px}
+.bp{background:var(--proj);color:#fff}
+.bf{background:var(--blue);color:#fff}
+.bs{background:var(--rose);color:#fff}
+.cbody{padding:9px 10px 10px}
+.cname{font-size:13px;font-weight:600}
+.cmeta{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:2px}
+.csel-row{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted);margin-top:4px}
+.dot{width:5px;height:5px;border-radius:50%;background:var(--border);flex-shrink:0}
+.dot.on{background:var(--rose)}
+.cbtns{display:flex;gap:4px;margin-top:7px}
+.btn{flex:1;padding:6px 2px;border:1px solid var(--border);border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;background:none;color:var(--muted);transition:.12s;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;white-space:nowrap}
+.btn:active{transform:scale(.96)}
+.btn.pon{background:rgba(155,142,224,.2);color:var(--proj);border-color:var(--proj)}
+.btn.fon{background:rgba(90,144,200,.2);color:var(--blue);border-color:var(--blue)}
+.btn.del:hover{background:rgba(192,80,80,.18);color:#e88;border-color:var(--red)}
+
+/* ── FINALE ── */
+.fwrap{padding:12px 14px}
+.fsec{margin-bottom:18px}
+.fhead{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--card);border:1px solid var(--border);border-top-left-radius:8px;border-top-right-radius:8px}
+.fhe{font-size:17px}
+.fhn{font-size:14px;font-weight:600}
+.ftag{margin-left:auto;font-size:10px;padding:3px 9px;border-radius:10px;font-weight:600}
+.ftag.y{background:rgba(90,144,200,.14);color:var(--blue)}
+.ftag.n{background:rgba(255,255,255,.05);color:var(--muted)}
+.fpg{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:7px;padding:9px;background:rgba(255,255,255,.015);border:1px solid var(--border);border-top:none;border-bottom-left-radius:8px;border-bottom-right-radius:8px}
+.fcard{border-radius:7px;overflow:hidden;border:2px solid var(--border);cursor:pointer;transition:.18s;position:relative;background:var(--card)}
+.fcard:hover{border-color:var(--blue);transform:translateY(-2px)}
+.fcard.on{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue)}
+.fcard img{width:100%;aspect-ratio:1;object-fit:cover;display:block}
+.fcard-n{padding:5px 7px;font-size:11px;font-weight:600}
+.fcard-s{padding:0 7px 5px;font-size:10px;color:var(--muted)}
+.fchk{position:absolute;top:5px;right:5px;width:20px;height:20px;border-radius:50%;background:var(--blue);color:#fff;font-size:10px;font-weight:800;display:none;align-items:center;justify-content:center}
+.fcard.on .fchk{display:flex}
+.fno{padding:14px;text-align:center;color:var(--muted);font-size:12px;background:rgba(255,255,255,.015);border:1px dashed var(--border);border-top:none;border-bottom-left-radius:8px;border-bottom-right-radius:8px}
+
+/* ── PROJECTION ── */
+.pwrap{padding:14px}
+.psbar{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--card);border:1px solid var(--border);border-radius:9px;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.psdot{width:9px;height:9px;border-radius:50%;background:var(--muted2);flex-shrink:0}
+.psdot.on{background:var(--green);box-shadow:0 0 6px var(--green)}
+.pslbl{font-size:13px;font-weight:600}
+.pssub{font-size:12px;color:var(--muted)}
+.psdur{margin-left:auto;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);flex-shrink:0}
+.psdur input{width:55px;padding:5px 7px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;text-align:center;outline:none}
+.pspause{padding:6px 13px;background:rgba(255,255,255,.06);color:var(--muted);border:1px solid var(--border);border-radius:6px;font-size:12px;font-weight:600;cursor:pointer}
+.pspause:hover{background:rgba(255,255,255,.1)}
+.pall{width:100%;padding:12px;background:linear-gradient(135deg,rgba(155,142,224,.14),rgba(155,142,224,.06));border:1px solid rgba(155,142,224,.3);border-radius:9px;color:var(--proj);font-size:13px;font-weight:600;cursor:pointer;margin-bottom:10px;transition:.15s;text-align:center}
+.pall:hover{background:linear-gradient(135deg,rgba(155,142,224,.22),rgba(155,142,224,.1))}
+.pall.on{border-color:var(--green);color:var(--green);background:linear-gradient(135deg,rgba(92,168,130,.18),rgba(92,168,130,.07))}
+.pfin{width:100%;padding:13px;background:linear-gradient(135deg,rgba(201,169,110,.16),rgba(201,169,110,.07));border:1px solid rgba(201,169,110,.3);border-radius:9px;color:var(--gold);font-size:14px;font-weight:600;cursor:pointer;margin-bottom:12px;transition:.15s;text-align:center}
+.pfin:hover{background:linear-gradient(135deg,rgba(201,169,110,.25),rgba(201,169,110,.12))}
+.pfin.on{border-color:var(--green);color:var(--green);background:linear-gradient(135deg,rgba(92,168,130,.18),rgba(92,168,130,.07))}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:10px}
+.pcard{background:var(--card);border:1.5px solid var(--border);border-radius:9px;overflow:hidden;transition:.15s}
+.pcard.on{border-color:var(--green);box-shadow:0 0 0 1px var(--green)}
+.pthumb{aspect-ratio:16/9;background:#080808;overflow:hidden}
+.pthumb img{width:100%;height:100%;object-fit:cover;display:block;opacity:.8}
+.pthumb .nem{display:flex;align-items:center;justify-content:center;height:100%;font-size:26px;color:#2a2a2a}
+.pbody{padding:9px 11px 11px}
+.ptitle{font-size:13px;font-weight:600}
+.psub{font-size:11px;color:var(--muted);margin-top:1px}
+.pbtn{width:100%;margin-top:8px;padding:7px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:.15s}
+.pbtn.go{background:var(--green);color:#061208}
+.pbtn.go:hover{opacity:.88}
+.pbtn.stop{background:rgba(192,80,80,.22);color:#e88;border:1px solid rgba(192,80,80,.3)}
+
+/* ── MODAL ── */
+.mbg{position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:200}
+.mbg.gone{display:none}
+.mbox{background:var(--card);border:1px solid var(--border);border-radius:13px;padding:30px;width:330px;text-align:center}
+.mbox h3{font-size:15px;font-weight:600;margin-bottom:8px}
+.mbox p{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.5}
+.mbtns{display:flex;gap:9px;justify-content:center}
+.mbtns button{padding:9px 22px;border:none;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer}
+.mcancel{background:rgba(255,255,255,.08);color:var(--muted)}
+.mconfirm{background:var(--red);color:#fff}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:16px;right:16px;background:var(--card);border:1px solid var(--border);padding:9px 14px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:300;max-width:280px}
+.toast.on{opacity:1}
+.toast.ok{border-color:var(--green);color:var(--green)}
+.toast.err{border-color:var(--red);color:#e88}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-wrap">
+  <div class="lbox">
+    <h2>👑 Admin Mariage</h2>
+    <small>Tableau de bord</small>
+    <input id="pwd-in" type="password" placeholder="Mot de passe">
+    <button onclick="tryLogin()">Accéder</button>
+    <div class="lerr" id="lerr"></div>
+  </div>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="brand">📸 Mariage</div>
+  <button class="nb on" id="nb-g" onclick="goView('g')">📋 Galerie</button>
+  <button class="nb"    id="nb-f" onclick="goView('f')">🏆 Finale</button>
+  <button class="nb"    id="nb-p" onclick="goView('p')">📡 Projection</button>
+  <div class="wsdot" id="wsdot"></div>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="sc"><div class="sn" id="st0">—</div><div class="sl">Invités</div></div>
+  <div class="sc"><div class="sn" id="st1">—</div><div class="sl">Photos</div></div>
+  <div class="sc"><div class="sn" id="st2">—</div><div class="sl">⭐ Invités</div></div>
+  <div class="sc"><div class="sn p" id="st3">—</div><div class="sl">📡 Projection</div></div>
+  <div class="sc"><div class="sn b" id="st4">—</div><div class="sl">🏆 Finale</div></div>
+</div>
+
+<!-- GALERIE -->
+<div class="view on" id="vg">
+  <div class="filters">
+    <div class="frow">
+      <span class="flabel">Tables</span>
+      <button class="fb" id="fball" onclick="toggleAllThemes()">Tous</button><div id="tbtns" style="display:contents"></div>
+      <div class="fright">
+        <input class="fsearch" id="fsearch" placeholder="🔍 Prénom…" oninput="doFilter()">
+        <span class="fcount" id="fcount">—</span>
+        <button class="freset" onclick="clearFilters()">Tout effacer</button>
+      </div>
+    </div>
+    <div class="frow">
+      <span class="flabel">Statut</span>
+      <button class="fb ss" id="fss" onclick="toggleS('s')">⭐ Sélect. invité</button>
+      <button class="fb ps" id="fps" onclick="toggleS('p')">📡 Projection</button>
+      <button class="fb fs" id="ffs" onclick="toggleS('f')">🏆 Finalistes</button>
+    </div>
+  </div>
+  <div class="grid" id="grid"></div>
+</div>
+
+<!-- FINALE -->
+<div class="view" id="vf">
+  <div class="fwrap" id="fwrap"></div>
+</div>
+
+<!-- PROJECTION -->
+<div class="view" id="vp">
+  <div class="pwrap">
+    <div class="psbar">
+      <div class="psdot" id="psdot"></div>
+      <span class="pslbl" id="pslbl">En attente</span>
+      <span class="pssub" id="pssub"></span>
+      <div class="psdur">Durée/slide : <input type="number" id="pdur" value="7" min="2" max="60"> s</div>
+      <button class="pspause" onclick="sendProj('waiting')">⏸ Pause</button>
+    </div>
+    <button class="pall" id="pall" onclick="sendProj('all')">📡 Tous les thèmes (photos projection)</button>
+    <button class="pfin" id="pfin" onclick="sendProj('finale')">🎬 Lancer la finale complète (finalistes)</button>
+    <div class="pgrid" id="pgrid"></div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="mbg gone" id="modal">
+  <div class="mbox">
+    <h3>Supprimer cette photo ?</h3>
+    <p id="modal-p"></p>
+    <div class="mbtns">
+      <button class="mcancel" onclick="closeModal()">Annuler</button>
+      <button class="mconfirm" id="modal-ok">Supprimer</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ════════ CONFIG ════════ */
+const API = '';
+const SS = sessionStorage; // alias court
+let PWD = SS.getItem('admin_pwd') || '';
+let photos = [], themes = [];
+let selThemes = new Set(JSON.parse(SS.getItem('sel_themes') || '[]'));
+let selStatus = new Set(JSON.parse(SS.getItem('sel_status') || '[]'));
+let curView   = SS.getItem('cur_view') || 'g';
+let curProj   = {mode:'waiting', theme_id:null, duration:7000};
+let ws = null;
+
+/* ════════ UTILS ════════ */
+function H(){ return {'X-Admin-Password': PWD}; }
+function saveFilters(){
+  SS.setItem('sel_themes', JSON.stringify([...selThemes]));
+  SS.setItem('sel_status', JSON.stringify([...selStatus]));
+}
+
+function toast(msg, type=''){
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.className = 'toast on' + (type ? ' '+type : '');
+  clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('on'), 2700);
+}
+function openModal(html, onOk){
+  document.getElementById('modal-p').innerHTML = html;
+  document.getElementById('modal').classList.remove('gone');
+  document.getElementById('modal-ok').onclick = () => { closeModal(); onOk(); };
+}
+function closeModal(){ document.getElementById('modal').classList.add('gone'); }
+document.getElementById('modal').addEventListener('click', e => { if(e.target===e.currentTarget) closeModal(); });
+
+/* ════════ BOOT ════════ */
+async function boot(){
+  if(!PWD){ showLogin(); return; }
+  // Tente auto-login avec pwd sauvegardé
+  const r = await fetch(`${API}/api/admin/stats`, {headers: H()});
+  if(!r.ok){ SS.removeItem('admin_pwd'); PWD=''; showLogin(); return; }
+  // Login OK
+  document.getElementById('login-wrap').classList.add('gone');
+  const d = await r.json();
+  applyStats(d); themes = d.themes;
+  buildThemeBtns();
+  buildProjGrid(d.themes);
+  await loadPhotos();
+  goView(curView);
+  connectWS();
+  // Récupère état projection
+  const pr = await fetch(`${API}/api/projection/state`);
+  if(pr.ok){ curProj = await pr.json(); updateProjUI(); }
+}
+
+function showLogin(){
+  document.getElementById('login-wrap').classList.remove('gone');
+  document.getElementById('pwd-in').focus();
+}
+
+async function tryLogin(){
+  PWD = document.getElementById('pwd-in').value.trim();
+  if(!PWD) return;
+  const r = await fetch(`${API}/api/admin/stats`, {headers: H()});
+  if(!r.ok){
+    document.getElementById('lerr').textContent = 'Mot de passe incorrect';
+    PWD = ''; return;
+  }
+  SS.setItem('admin_pwd', PWD);
+  document.getElementById('lerr').textContent = '';
+  document.getElementById('login-wrap').classList.add('gone');
+  const d = await r.json();
+  applyStats(d); themes = d.themes;
+  buildThemeBtns(); buildProjGrid(d.themes);
+  await loadPhotos();
+  goView(curView);
+  connectWS();
+  const pr = await fetch(`${API}/api/projection/state`);
+  if(pr.ok){ curProj = await pr.json(); updateProjUI(); }
+}
+document.getElementById('pwd-in').addEventListener('keydown', e => { if(e.key==='Enter') tryLogin(); });
+
+/* ════════ STATS ════════ */
+function applyStats(s){
+  document.getElementById('st0').textContent = s.total_guests;
+  document.getElementById('st1').textContent = s.total_photos;
+  document.getElementById('st2').textContent = s.selected_photos;
+  document.getElementById('st3').textContent = s.projection_photos;
+  document.getElementById('st4').textContent = s.finalist_photos + '/7';
+}
+async function refreshStats(){
+  const r = await fetch(`${API}/api/admin/stats`, {headers: H()}); if(!r.ok) return;
+  const d = await r.json(); applyStats(d); themes = d.themes;
+  buildThemeBtns(); buildProjGrid(d.themes);
+}
+
+/* ════════ VIEWS ════════ */
+function goView(v){
+  curView = v; SS.setItem('cur_view', v);
+  ['g','f','p'].forEach(x => {
+    document.getElementById(`v${x}`).classList.toggle('on', x===v);
+    document.getElementById(`nb-${x}`).classList.toggle('on', x===v);
+  });
+  if(v==='f') loadFinale();
+  if(v==='p') updateProjUI();
+}
+
+/* ════════ FILTRES MULTI ════════ */
+function buildThemeBtns(){
+  const allOn = themes.length > 0 && themes.every(t => selThemes.has(t.id));
+  document.getElementById('fball')?.classList.toggle('on', allOn);
+  document.getElementById('tbtns').innerHTML = themes.map(t =>
+    `<button class="fb${selThemes.has(t.id)?' on':''}" id="fbt${t.id}" onclick="toggleT(${t.id})">${t.emoji} ${t.name}</button>`
+  ).join('');
+  // Sync statuts
+  ['s','p','f'].forEach(k => {
+    const ids = {'s':'fss','p':'fps','f':'ffs'};
+    document.getElementById(ids[k])?.classList.toggle('on', selStatus.has(k));
+  });
+}
+
+function toggleAllThemes(){
+  const allOn = themes.every(t => selThemes.has(t.id));
+  if(allOn){
+    selThemes.clear();
+  } else {
+    themes.forEach(t => selThemes.add(t.id));
+  }
+  saveFilters(); buildThemeBtns(); doFilter();
+}
+
+function toggleT(id){
+  selThemes.has(id) ? selThemes.delete(id) : selThemes.add(id);
+  document.getElementById(`fbt${id}`)?.classList.toggle('on', selThemes.has(id));
+  saveFilters(); doFilter();
+}
+
+function toggleS(k){
+  selStatus.has(k) ? selStatus.delete(k) : selStatus.add(k);
+  const ids = {'s':'fss','p':'fps','f':'ffs'};
+  document.getElementById(ids[k])?.classList.toggle('on', selStatus.has(k));
+  saveFilters(); doFilter();
+}
+
+function clearFilters(){
+  selThemes.clear(); selStatus.clear(); saveFilters();
+  document.querySelectorAll('.fb').forEach(b => b.classList.remove('on'));
+  document.getElementById('fsearch').value = '';
+  doFilter();
+}
+
+function doFilter(){
+  const q = document.getElementById('fsearch').value.toLowerCase().trim();
+  let list = photos;
+  if(selThemes.size > 0) list = list.filter(p => selThemes.has(p.theme_id));
+  if(selStatus.size > 0) list = list.filter(p =>
+    (selStatus.has('s') && p.is_selected) ||
+    (selStatus.has('p') && p.is_projection) ||
+    (selStatus.has('f') && p.is_finalist)
+  );
+  if(q) list = list.filter(p =>
+    p.guest_name.toLowerCase().includes(q) || p.theme_name.toLowerCase().includes(q)
+  );
+  document.getElementById('fcount').textContent = `${list.length} photo${list.length!==1?'s':''}`;
+  renderGrid(list);
+}
+
+/* ════════ PHOTOS ════════ */
+async function loadPhotos(){
+  const r = await fetch(`${API}/api/admin/photos`, {headers: H()});
+  if(!r.ok){ toast('Erreur chargement photos','err'); return; }
+  photos = await r.json(); doFilter();
+}
+
+function renderGrid(list){
+  const g = document.getElementById('grid');
+  if(!list.length){ g.innerHTML='<div class="empty">Aucune photo</div>'; return; }
+  const t = p => new Date(p.uploaded_at).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  const cls = p => p.is_projection ? 'cp' : p.is_finalist ? 'cf' : p.is_selected ? 'cs' : '';
+  g.innerHTML = list.map(p => `
+    <div class="card ${cls(p)}" id="c${p.id}">
+      <div class="cimg">
+        <div class="cbadges">
+          ${p.is_projection ? '<span class="badge bp">📡 PROJ</span>' : ''}
+          ${p.is_finalist   ? '<span class="badge bf">🏆 FINALE</span>' : ''}
+          ${p.is_selected && !p.is_projection && !p.is_finalist ? '<span class="badge bs">⭐ INV</span>' : ''}
+        </div>
+        <img src="${p.thumbnail_url}" loading="lazy" onerror="this.src='${p.url}'">
+      </div>
+      <div class="cbody">
+        <div class="cname">${p.guest_name}</div>
+        <div class="cmeta"><span>${'Table ' + p.theme_id}</span><span>${t(p)}</span></div>
+        <div class="csel-row"><div class="dot ${p.is_selected?'on':''}"></div>${p.is_selected?'Sélectionnée par l\'invité':'Non sélectionnée'}</div>
+        <div class="cbtns">
+          <button class="btn ${p.is_projection?'pon':''}" onclick="doProj(${p.id},${p.is_projection})">
+            ${p.is_projection?'📡':'○'} Proj
+          </button>
+          <button class="btn ${p.is_finalist?'fon':''}" onclick="doFin(${p.id},${p.is_finalist})">
+            ${p.is_finalist?'🏆':'○'} Finale
+          </button>
+          <a class="btn" href="${p.url}" download>⬇</a>
+          <button class="btn del" onclick="doDel(${p.id},'${p.guest_name.replace(/'/g,"\\'")}')">🗑</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+/* ════════ ACTIONS ════════ */
+async function doProj(id){
+  const r = await fetch(`${API}/api/photos/${id}/projection`, {method:'PUT'});
+  if(!r.ok){ toast('Erreur','err'); return; }
+  const u = await r.json();
+  const p = photos.find(x => x.id===id); if(p) p.is_projection = u.is_projection;
+  doFilter(); refreshStats();
+  toast(u.is_projection ? '📡 En projection' : 'Retiré de la projection', 'ok');
+}
+
+async function doFin(id){
+  const r = await fetch(`${API}/api/photos/${id}/finalist`, {method:'PUT'});
+  if(!r.ok){ toast('Erreur','err'); return; }
+  const u = await r.json();
+  const p = photos.find(x => x.id===id);
+  if(p){
+    if(u.is_finalist) photos.forEach(x => { if(x.theme_id===p.theme_id && x.id!==id) x.is_finalist=false; });
+    p.is_finalist = u.is_finalist;
+  }
+  doFilter(); refreshStats();
+  toast(u.is_finalist ? '🏆 Finaliste !' : 'Retiré de la finale', 'ok');
+}
+
+function doDel(id, name){
+  openModal(`Photo de <strong>${name}</strong><br><small style="color:#555">Conservée dans l'archive.</small>`, async () => {
+    const r = await fetch(`${API}/api/admin/photos/${id}`, {method:'DELETE', headers:H()});
+    if(!r.ok){ toast('Erreur','err'); return; }
+    photos = photos.filter(p => p.id!==id); doFilter(); refreshStats();
+    toast('Photo supprimée', 'ok');
+  });
+}
+
+/* ════════ FINALE ════════ */
+async function loadFinale(){
+  const r = await fetch(`${API}/api/admin/selected`, {headers:H()});
+  if(!r.ok){ toast('Erreur','err'); return; }
+  const groups = await r.json();
+  document.getElementById('fwrap').innerHTML = groups.map(g => `
+    <div class="fsec">
+      <div class="fhead">
+        <span class="fhe">${g.theme_emoji}</span>
+        <span class="fhn">${g.theme_name}</span>
+        <span class="ftag ${g.finalist_id?'y':'n'}">${g.finalist_id?'🏆 Choisi':'○ En attente'}</span>
+      </div>
+      ${g.photos.length===0
+        ? `<div class="fno">Aucune photo pour cette table</div>`
+        : `<div class="fpg">${g.photos.map(p=>`
+            <div class="fcard ${p.is_finalist?'on':''}" onclick="doFinFromFinale(${p.id})">
+              <div class="fchk">✓</div>
+              <img src="${p.thumbnail_url}" onerror="this.src='${p.url}'">
+              <div class="fcard-n">${p.guest_name}</div>
+              <div class="fcard-s">${p.is_finalist?'🏆':p.is_projection?'📡':p.is_selected?'⭐':''}</div>
+            </div>`).join('')}
+          </div>`}
+    </div>`).join('');
+}
+
+async function doFinFromFinale(id){
+  const r = await fetch(`${API}/api/photos/${id}/finalist`, {method:'PUT'});
+  if(!r.ok){ toast('Erreur','err'); return; }
+  const u = await r.json();
+  const p = photos.find(x => x.id===id);
+  if(p){
+    if(u.is_finalist) photos.forEach(x => { if(x.theme_id===p.theme_id && x.id!==id) x.is_finalist=false; });
+    p.is_finalist = u.is_finalist;
+  }
+  refreshStats(); loadFinale();
+  toast(u.is_finalist ? '🏆 Finaliste !' : 'Retiré', 'ok');
+}
+
+/* ════════ PROJECTION ════════ */
+function buildProjGrid(tms){
+  document.getElementById('pfin').classList.toggle('on', curProj.mode==='finale');
+  document.getElementById('pall').classList.toggle('on', curProj.mode==='all');
+  document.getElementById('pgrid').innerHTML = tms.map(t => {
+    const active = curProj.mode==='theme' && curProj.theme_id===t.id;
+    const fin = t.finalist;
+    return `
+    <div class="pcard ${active?'on':''}">
+      <div class="pthumb">
+        ${fin
+          ? `<img src="${fin.thumbnail_url}" onerror="this.src='${fin.url}'">`
+          : `<div class="nem">${t.emoji}</div>`}
+      </div>
+      <div class="pbody">
+        <div class="ptitle">${t.emoji} ${t.name}</div>
+        <div class="psub">${fin?`📸 ${fin.guest_name}`:'Aucun finaliste'}</div>
+        <button class="pbtn ${active?'stop':'go'}" onclick="sendProj('theme',${t.id})">
+          ${active ? '⏹ En cours — arrêter' : '▶ Projeter cette table'}
+        </button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateProjUI(){
+  const dot = document.getElementById('psdot');
+  const lbl = document.getElementById('pslbl');
+  const sub = document.getElementById('pssub');
+  if(curProj.mode==='waiting'){
+    dot.classList.remove('on'); lbl.textContent='En attente'; sub.textContent='';
+  } else if(curProj.mode==='theme'){
+    dot.classList.add('on');
+    const t = themes.find(x => x.id===curProj.theme_id);
+    lbl.textContent='▶ En cours —'; sub.textContent = t ? `${t.emoji} ${t.name}` : '';
+  } else if(curProj.mode==='all'){
+    dot.classList.add('on'); lbl.textContent='📡 Tous les thèmes'; sub.textContent='photos projection';
+  } else {
+    dot.classList.add('on'); lbl.textContent='🎬 Finale complète'; sub.textContent='';
+  }
+  if(curProj.duration) document.getElementById('pdur').value = Math.round(curProj.duration/1000);
+  buildProjGrid(themes);
+}
+
+async function sendProj(mode, themeId=null){
+  // Toggle: si déjà actif sur ce thème → pause
+  if(mode==='theme' && curProj.mode==='theme' && curProj.theme_id===themeId) mode='waiting';
+  if(mode==='all'    && curProj.mode==='all')    mode='waiting';
+  if(mode==='finale' && curProj.mode==='finale') mode='waiting';
+  const dur = parseInt(document.getElementById('pdur').value)||7;
+  const body = {mode, theme_id:themeId, duration:dur*1000};
+  const r = await fetch(`${API}/api/admin/projection`, {
+    method:'PUT', headers:{...H(),'Content-Type':'application/json'}, body:JSON.stringify(body)
+  });
+  if(!r.ok){ toast('Erreur','err'); return; }
+  curProj = await r.json(); updateProjUI();
+  const msgs = {waiting:'⏸ Projection en pause', theme:'📡 Projection lancée !', all:'📡 Tous les thèmes !', finale:'🎬 Finale lancée !'};
+  toast(msgs[mode]||'OK','ok');
+}
+
+/* ════════ WEBSOCKET ════════ */
+function connectWS(){
+  const proto = location.protocol==='https:'?'wss':'ws';
+  ws = new WebSocket(`${proto}://${location.host}/api/admin/ws`);
+  ws.onopen  = () => document.getElementById('wsdot').classList.add('live');
+  ws.onclose = () => {
+    document.getElementById('wsdot').classList.remove('live');
+    setTimeout(connectWS, 3000);
+  };
+  ws.onmessage = async e => {
+    const msg = JSON.parse(e.data);
+    if(msg.event==='new_photo'){
+      photos.unshift(msg.photo); doFilter(); refreshStats();
+      toast(`📸 ${msg.photo.guest_name}`);
+    } else if(msg.event==='photo_deleted'){
+      photos = photos.filter(p => p.id!==msg.photo_id); doFilter();
+    } else if(['photo_selected','finalist_changed','projection_changed'].includes(msg.event)){
+      await loadPhotos(); refreshStats();
+    }
+  };
+}
+
+/* ════════ START ════════ */
+boot();
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+./uploads
+./venv
+./wedding.db
+./*.zip
+./*.tar.gz
+
+venv
+uploads
+wedding.db
+*.zip

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projection — Mariage</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:#080604;color:#e8e0d5;font-family:'DM Sans',sans-serif;overflow:hidden;cursor:default}
+
+/* ── WAITING ── */
+#waiting{position:fixed;inset:0;background:#080604;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;transition:opacity .8s}
+#waiting.off{opacity:0;pointer-events:none}
+.wh{font-size:64px;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.wt{font-family:'Cormorant Garamond',serif;font-size:40px;font-weight:300;color:#c9a96e;margin-top:18px}
+.ws{font-size:12px;color:#3a3030;letter-spacing:.22em;text-transform:uppercase;margin-top:10px}
+
+/* ── SLIDES ── */
+#ss{position:fixed;inset:0}
+.sl{position:absolute;inset:0;opacity:0;transition:opacity 1s ease;pointer-events:none}
+.sl.on{opacity:1;pointer-events:auto}
+
+/* Intro thème */
+.si{display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,#1c1408 0%,#080604 70%)}
+.si-d{position:absolute;inset:0;overflow:hidden}
+.si-d::before,.si-d::after{content:'';position:absolute;border-radius:50%;border:1px solid rgba(201,169,110,.09);top:50%;left:50%}
+.si-d::before{width:480px;height:480px;transform:translate(-50%,-50%)}
+.si-d::after{width:680px;height:680px;transform:translate(-50%,-50%)}
+.si-c{position:relative;z-index:1;text-align:center;padding:40px;max-width:600px}
+.si-em{font-size:68px;animation:fu .8s both}
+.si-ln{width:1px;height:44px;background:linear-gradient(to bottom,transparent,#c9a96e,transparent);margin:14px auto}
+.si-n{font-size:11px;letter-spacing:.4em;text-transform:uppercase;color:#6a5a3a;animation:fu .8s .1s both}
+.si-nm{font-family:'Cormorant Garamond',serif;font-size:50px;font-weight:300;color:#c9a96e;margin-top:6px;line-height:1.1;animation:fu .8s .2s both}
+.si-ds{font-size:14px;color:#5a5040;margin-top:12px;line-height:1.7;animation:fu .8s .35s both}
+@keyframes fu{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+
+/* Photo */
+.sp{background:#080604}
+.sp-bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:blur(40px);opacity:.18;transform:scale(1.1)}
+.sp-img{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:1}
+.sp-img img{max-height:80vh;max-width:88vw;object-fit:contain;border-radius:3px;box-shadow:0 28px 80px rgba(0,0,0,.85)}
+.sl.on.sp .sp-img img{animation:kb 14s ease-in-out forwards}
+@keyframes kb{from{transform:scale(1)}to{transform:scale(1.08)}}
+.sp-cap{position:absolute;bottom:0;left:0;right:0;z-index:2;padding:50px 40px 28px;background:linear-gradient(to top,rgba(0,0,0,.9) 0%,transparent 100%)}
+.sp-nm{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300}
+.sp-th{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#5a5040;margin-top:5px}
+
+/* ── CONTROLS ── */
+.ctrl-bar{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;background:rgba(0,0,0,.65);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.09);border-radius:40px;padding:7px 16px;z-index:20;transition:opacity .3s}
+.c{background:none;border:none;color:#e8e0d5;font-size:17px;cursor:pointer;padding:5px 8px;border-radius:7px;transition:background .15s}
+.c:hover{background:rgba(255,255,255,.1)}
+.c.g{color:#c9a96e}
+.pb-wrap{width:110px;height:3px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden}
+.pb-fill{height:100%;background:#c9a96e;border-radius:2px;width:0%;transition:width .1s linear}
+.sn{font-size:11px;color:#4a4040;min-width:36px;text-align:center}
+
+/* ── THEME PIPS ── */
+.pips{position:fixed;top:16px;right:16px;display:flex;gap:6px;z-index:20}
+.pip{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.14);cursor:pointer;transition:.2s}
+.pip.done{background:#c9a96e}
+.pip.cur{background:#c87680;transform:scale(1.5)}
+</style>
+</head>
+<body>
+
+<div id="waiting">
+  <div class="wh">💕</div>
+  <div class="wt">Soirée Photo</div>
+  <div class="ws">En attente de la projection</div>
+</div>
+
+<div id="ss"></div>
+<div class="pips" id="pips"></div>
+
+<div class="ctrl-bar">
+  <button class="c" onclick="prev()">◀</button>
+  <button class="c g" id="pbtn" onclick="togglePlay()">⏸</button>
+  <button class="c" onclick="next()">▶</button>
+  <div class="pb-wrap"><div class="pb-fill" id="pbfill"></div></div>
+  <span class="sn" id="slidenum">—</span>
+  <button class="c" onclick="document.documentElement.requestFullscreen()">⛶</button>
+</div>
+
+<script>
+const API = '';
+let slides=[], cur=0, playing=true;
+let dur=7000, elapsed=0;
+let autoT=null, progT=null;
+let ws=null;
+
+/* ── INIT : récupère l'état au chargement ── */
+async function init(){
+  connectWS();
+  try {
+    const r = await fetch(`${API}/api/projection/state`);
+    if(r.ok){
+      const s = await r.json();
+      console.log('[Projection] état initial:', s);
+      if(s.mode !== 'waiting') await applyCmd(s);
+    }
+  } catch(e){ console.warn('[Projection] pas d\'état initial:', e); }
+}
+
+function connectWS(){
+  const proto = location.protocol==='https:'?'wss':'ws';
+  ws = new WebSocket(`${proto}://${location.host}/api/projection/ws`);
+  ws.onopen  = () => console.log('[WS] connecté');
+  ws.onclose = () => { console.log('[WS] fermé, reconnexion...'); setTimeout(connectWS, 2000); };
+  ws.onerror = e  => console.error('[WS] erreur:', e);
+  ws.onmessage = async e => {
+    const msg = JSON.parse(e.data);
+    console.log('[WS] message:', msg);
+    if(msg.event === 'projection_control') await applyCmd(msg);
+  };
+}
+
+/* ── COMMANDES ── */
+async function applyCmd(cmd){
+  dur = cmd.duration || 7000;
+  if(cmd.mode==='waiting'){
+    stopAll();
+    document.getElementById('waiting').classList.remove('off');
+  } else if(cmd.mode==='theme'){
+    await loadTheme(cmd.theme_id);
+  } else if(cmd.mode==='finale'){
+    await loadFinale();
+  } else if(cmd.mode==='all'){
+    await loadAllThemes();
+  }
+}
+
+/* ── CHARGEMENT DONNÉES ── */
+async function loadTheme(tid){
+  const r = await fetch(`${API}/api/themes/${tid}`); if(!r.ok) return;
+  const theme = await r.json();
+  const pool = theme.photos.filter(p => p.is_projection);
+  slides = [{type:'intro', theme}];
+  pool.forEach(p => slides.push({type:'photo', photo:p, theme}));
+  buildSlides(); go();
+}
+
+async function loadFinale(){
+  const r = await fetch(`${API}/api/themes/`); if(!r.ok) return;
+  const list = await r.json();
+  slides = [];
+  for(const t of list){
+    const tr = await fetch(`${API}/api/themes/${t.id}`); if(!tr.ok) continue;
+    const theme = await tr.json();
+    const pool = theme.photos.filter(p => p.is_finalist);
+    if(!pool.length) continue;
+    slides.push({type:'intro', theme});
+    pool.forEach(p => slides.push({type:'photo', photo:p, theme}));
+  }
+  buildSlides(); buildPips(); go();
+}
+
+async function loadAllThemes(){
+  const r = await fetch(`${API}/api/themes/`); if(!r.ok) return;
+  const list = await r.json();
+  slides = [];
+  for(const t of list){
+    const tr = await fetch(`${API}/api/themes/${t.id}`); if(!tr.ok) continue;
+    const theme = await tr.json();
+    const pool = theme.photos.filter(p => p.is_projection);
+    if(!pool.length) continue;
+    slides.push({type:'intro', theme});
+    pool.forEach(p => slides.push({type:'photo', photo:p, theme}));
+  }
+  buildSlides(); buildPips(); go();
+}
+
+/* ── RENDU ── */
+function buildSlides(){
+  document.getElementById('waiting').classList.add('off');
+  document.getElementById('ss').innerHTML = slides.map((s,i) => {
+    if(s.type==='intro') return `
+      <div class="sl si" id="sl${i}">
+        <div class="si-d"></div>
+        <div class="si-c">
+          <div class="si-em">${s.theme.emoji}</div>
+          <div class="si-ln"></div>
+          <div class="si-n">Table ${s.theme.table_number}</div>
+          <div class="si-nm">${s.theme.name}</div>
+          <div class="si-ds">${s.theme.description}</div>
+        </div>
+      </div>`;
+    return `
+      <div class="sl sp" id="sl${i}">
+        <div class="sp-bg" style="background-image:url('${s.photo.url}')"></div>
+        <div class="sp-img"><img src="${s.photo.url}" loading="lazy"></div>
+        <div class="sp-cap">
+          <div class="sp-nm">${s.photo.guest_name}</div>
+          <div class="sp-th">${s.theme.emoji} ${s.theme.name}</div>
+        </div>
+      </div>`;
+  }).join('');
+  showSlide(0);
+}
+
+function buildPips(){
+  document.getElementById('pips').innerHTML = slides
+    .filter(s=>s.type==='intro')
+    .map(s=>`<div class="pip" id="pip${s.theme.id}" title="${s.theme.name}" onclick="jumpTheme(${s.theme.id})"></div>`)
+    .join('');
+}
+
+function updPips(){
+  const tid = slides[cur]?.theme?.id;
+  const ci  = slides.findIndex(s=>s.type==='intro'&&s.theme.id===tid);
+  document.querySelectorAll('.pip').forEach(p=>p.classList.remove('cur','done'));
+  slides.forEach((s,i)=>{
+    if(s.type!=='intro') return;
+    const pip = document.getElementById(`pip${s.theme.id}`); if(!pip) return;
+    if(s.theme.id===tid) pip.classList.add('cur');
+    else if(i<ci) pip.classList.add('done');
+  });
+}
+
+function jumpTheme(id){
+  const idx = slides.findIndex(s=>s.type==='intro'&&s.theme.id===id);
+  if(idx>=0){ showSlide(idx); if(playing) startTimer(); }
+}
+
+function showSlide(idx){
+  document.querySelectorAll('.sl').forEach(el=>el.classList.remove('on'));
+  cur = ((idx%slides.length)+slides.length)%slides.length;
+  document.getElementById(`sl${cur}`)?.classList.add('on');
+  document.getElementById('slidenum').textContent = `${cur+1}/${slides.length}`;
+  updPips(); resetProg();
+}
+
+/* ── TIMER ── */
+function go(){ playing=true; document.getElementById('pbtn').textContent='⏸'; startTimer(); }
+function stopAll(){
+  playing=false; clearInterval(autoT); clearInterval(progT);
+  document.getElementById('ss').innerHTML='';
+  document.getElementById('pips').innerHTML='';
+  slides=[];
+}
+function startTimer(){
+  clearInterval(autoT); clearInterval(progT); elapsed=0;
+  autoT = setInterval(next, dur);
+  progT = setInterval(()=>{
+    elapsed+=100;
+    document.getElementById('pbfill').style.width = Math.min(elapsed/dur*100,100)+'%';
+  },100);
+}
+function resetProg(){ elapsed=0; document.getElementById('pbfill').style.width='0%'; }
+function next(){ showSlide(cur+1); if(playing) startTimer(); }
+function prev(){ showSlide(cur-1); if(playing) startTimer(); }
+function togglePlay(){
+  playing=!playing;
+  document.getElementById('pbtn').textContent = playing?'⏸':'▶';
+  playing ? startTimer() : (clearInterval(autoT), clearInterval(progT));
+}
+
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowRight'||e.key==='ArrowDown') next();
+  else if(e.key==='ArrowLeft'||e.key==='ArrowUp') prev();
+  else if(e.key===' ') togglePlay();
+  else if(e.key==='f') document.documentElement.requestFullscreen();
+});
+
+init();
+</script>
+</body>
+</html>

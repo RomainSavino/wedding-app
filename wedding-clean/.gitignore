@@ -1,0 +1,59 @@
+# Base de données
+*.db
+*.db-shm
+*.db-wal
+
+# Photos uploadées
+uploads/
+
+# État de projection
+projection_state.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg
+*.egg-info/
+dist/
+build/
+*.spec
+
+# Environnement virtuel
+venv/
+.venv/
+env/
+.env/
+
+# Variables d'environnement
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+desktop.ini
+
+# Éditeurs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+
+# Logs
+*.log
+uvicorn.log
+
+# QR codes générés
+qr_table_*.png
