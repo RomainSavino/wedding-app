@@ -12,9 +12,6 @@ from database import engine, Base, SessionLocal
 from models import Theme
 from routes import guests, photos, themes, admin, projection
 
-@app.get("/health", include_in_schema=False)
-async def health():
-    return {"status": "ok"}
 
 THEMES_SEED = [
     {"id": 1, "name": "Table 1", "table_number": 1, "description": "Objectif photo de la Table 1", "emoji": "📸"},
@@ -86,6 +83,9 @@ app.include_router(projection.router, prefix="/api/projection", tags=["projectio
 
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 
+@app.get("/health", include_in_schema=False)
+async def health():
+    return {"status": "ok"}
 
 @app.get("/admin.html",       include_in_schema=False)
 async def admin_page():       return FileResponse("frontend/admin.html")
