@@ -13,6 +13,10 @@ from models import Theme
 from routes import guests, photos, themes, admin, projection
 
 
+# ==========
+# Seed
+# ==========
+
 THEMES_SEED = [
     {"id": 1, "name": "Table 1", "table_number": 1, "description": "Objectif photo de la Table 1", "emoji": "📸"},
     {"id": 2, "name": "Table 2", "table_number": 2, "description": "Objectif photo de la Table 2", "emoji": "🎉"},
@@ -24,15 +28,9 @@ THEMES_SEED = [
 ]
 
 
-def _seed():
-    db = SessionLocal()
-    try:
-        if db.query(Theme).count() == 0:
-            db.add_all([Theme(**t) for t in THEMES_SEED])
-            db.commit()
-    finally:
-        db.close()
-
+# ==========
+# Migration & seed
+# ==========
 
 def _migrate():
     with engine.connect() as conn:
@@ -45,28 +43,39 @@ def _migrate():
                 conn.commit()
             except Exception:
                 pass
+
     db = SessionLocal()
     try:
-        for t in db.query(Theme).all():
-            if t.name.startswith("Thème "):
-                t.name = t.name.replace("Thème ", "Table ")
-            if t.description.startswith("Objectif photo du thème"):
-                t.description = t.description.replace("du thème", "de la Table")
+        existing_ids = {t.id for t in db.query(Theme).all()}
+        for seed in THEMES_SEED:
+            if seed["id"] not in existing_ids:
+                db.add(Theme(**seed))
+
+        for seed in THEMES_SEED:
+            t = db.query(Theme).filter(Theme.id == seed["id"]).first()
+            if t:
+                t.name        = seed["name"]
+                t.description = seed["description"]
+                t.emoji       = seed["emoji"]
+
         db.commit()
     finally:
         db.close()
 
 
+# ==========
+# Lifespan
+# ==========
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     Base.metadata.create_all(bind=engine)
     _migrate()
-    _seed()
     yield
 
 
 # ==========
-# Dossiers créés au niveau module (avant app.mount)
+# Dossiers (niveau module, avant app.mount)
 # ==========
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
