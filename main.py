@@ -12,6 +12,9 @@ from database import engine, Base, SessionLocal
 from models import Theme
 from routes import guests, photos, themes, admin, projection
 
+@app.get("/health", include_in_schema=False)
+async def health():
+    return {"status": "ok"}
 
 THEMES_SEED = [
     {"id": 1, "name": "Table 1", "table_number": 1, "description": "Objectif photo de la Table 1", "emoji": "📸"},
