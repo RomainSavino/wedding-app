@@ -1,8 +1,8 @@
 import os
 
-UPLOAD_DIR = "uploads"
+UPLOAD_DIR = os.getenv("UPLOAD_DIR", "uploads")
 MAX_IMAGE_SIZE = (2400, 2400)
 THUMBNAIL_SIZE = (900, 900)
 IMAGE_QUALITY = 92
 THUMBNAIL_QUALITY = 88
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "mariage2025")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "mariage2026")
