@@ -12,15 +12,15 @@ from database import engine, Base, SessionLocal
 from models import Theme
 from routes import guests, photos, themes, admin, projection
 
-
+# git add main.py ; git commit -m '[WIP] Nom des tables' ; git push
 # ==========
 # Seed
 # ==========
 
 THEMES_SEED = [
-    {"id": 1, "name": "Table 1", "table_number": 1, "description": "Objectif photo de la Table 1", "emoji": "📸"},
+    {"id": 1, "name": "Table Fondcombe", "table_number": 1, "description": "La -meilleure- table des mariés..", "emoji": "💕"},
     {"id": 2, "name": "Table 2", "table_number": 2, "description": "Objectif photo de la Table 2", "emoji": "🎉"},
-    {"id": 3, "name": "Table 3", "table_number": 3, "description": "Objectif photo de la Table 3", "emoji": "💕"},
+    {"id": 3, "name": "Table 3", "table_number": 3, "description": "Objectif photo de la Table 3", "emoji": "📸"},
     {"id": 4, "name": "Table 4", "table_number": 4, "description": "Objectif photo de la Table 4", "emoji": "🥂"},
     {"id": 5, "name": "Table 5", "table_number": 5, "description": "Objectif photo de la Table 5", "emoji": "🌸"},
     {"id": 6, "name": "Table 6", "table_number": 6, "description": "Objectif photo de la Table 6", "emoji": "🎊"},
