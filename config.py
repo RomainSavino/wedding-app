@@ -1,6 +1,6 @@
 import os
 
-UPLOAD_DIR = os.getenv("UPLOAD_DIR", "uploads")
+UPLOAD_DIR    = os.getenv("UPLOAD_DIR", "/app/data/uploads")
 MAX_IMAGE_SIZE = (2400, 2400)
 THUMBNAIL_SIZE = (900, 900)
 IMAGE_QUALITY = 92

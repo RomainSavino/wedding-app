@@ -8,7 +8,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 
 from config import UPLOAD_DIR
-from database import engine, Base, SessionLocal
+from database import engine, Base, SessionLocal, DB_PATH
 from models import Theme
 from routes import guests, photos, themes, admin, projection
 
@@ -81,6 +81,7 @@ async def lifespan(app: FastAPI):
 
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(os.path.join(UPLOAD_DIR, "archive"), exist_ok=True)
+os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
 
 
 # ==========
