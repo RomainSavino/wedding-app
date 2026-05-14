@@ -19,7 +19,7 @@ from routes import guests, photos, themes, admin, projection
 
 THEMES_SEED = [
     {"id": 1, "name": "Table Fondcombe", "table_number": 1, "description": "La -meilleure- table des mariés..", "emoji": "💕"},
-    {"id": 2, "name": "Table 2", "table_number": 2, "description": "Objectif photo de la Table 2", "emoji": "🎉"},
+    {"id": 2, "name": "Table Mordor", "table_number": 2, "description": "La table des oncles et tantes... Personne veut y aller", "emoji": "🎉"},
     {"id": 3, "name": "Table 3", "table_number": 3, "description": "Objectif photo de la Table 3", "emoji": "📸"},
     {"id": 4, "name": "Table 4", "table_number": 4, "description": "Objectif photo de la Table 4", "emoji": "🥂"},
     {"id": 5, "name": "Table 5", "table_number": 5, "description": "Objectif photo de la Table 5", "emoji": "🌸"},
