@@ -45,7 +45,6 @@ def _migrate():
                 conn.commit()
             except Exception:
                 pass
-    # Renomme les thèmes existants de "Thème N" vers "Table N"
     db = SessionLocal()
     try:
         for t in db.query(Theme).all():
@@ -60,13 +59,23 @@ def _migrate():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    os.makedirs(UPLOAD_DIR, exist_ok=True)
-    os.makedirs(os.path.join(UPLOAD_DIR, "archive"), exist_ok=True)
     Base.metadata.create_all(bind=engine)
     _migrate()
     _seed()
     yield
 
+
+# ==========
+# Dossiers créés au niveau module (avant app.mount)
+# ==========
+
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+os.makedirs(os.path.join(UPLOAD_DIR, "archive"), exist_ok=True)
+
+
+# ==========
+# App
+# ==========
 
 app = FastAPI(title="Wedding App", version="1.0.0", lifespan=lifespan)
 
@@ -82,6 +91,11 @@ app.include_router(admin.router,      prefix="/api/admin",      tags=["admin"])
 app.include_router(projection.router, prefix="/api/projection", tags=["projection"])
 
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
+
+
+# ==========
+# Frontend
+# ==========
 
 @app.get("/health", include_in_schema=False)
 async def health():
